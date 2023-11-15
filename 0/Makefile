@@ -8,26 +8,19 @@ GENERATED_PLATFORMS=             \
  platform1.xml                   \
  platform2.xml                   
 
-GENERATED_EVENTDAEMONS=          \
- eventdaemon1.xml                \
- eventdaemon2.xml                
+GENERATED_EVENTDAEMONS=          
 
-GENERATED_GPSDLOCATIONAGENTS=    \
- gpsdlocationagent1.xml          \
- gpsdlocationagent2.xml          
+GENERATED_GPSDLOCATIONAGENTS=    
 
 GENERATED_MGENINPUTS=
 
-GENERATED_ROUTINGCONFS=           \
- routing1.conf                    \
- routing2.conf                    
+GENERATED_ROUTINGCONFS=           
 
 NO-%:
 	touch $@
 
 GENERATED_EXTRA=           \
  NO-host-emaneeventservice \
- NO-node-emane             \
  NO-node-emaneeventd       \
  NO-node-emanetransportd   \
  NO-node-gpsd              \
