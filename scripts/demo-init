@@ -223,28 +223,38 @@ start_otestpoint_broker()
     return $retval
 }
 
-start_iperf()
+start_iperf_server()
 {
     local inputfile=$1
     local logfile=$2
     local pidfile=$3
-    local starttime="$4"
 
-    # iperf servers do not wait for start time
-    if (! grep -q '\-s ' $inputfile)
-    then
-        start=$(date --date "$starttime" "+%s")
-
-        while [[ $(date "+%s") -lt $start ]]
-        do
-            sleep 1
-        done
-    fi
-
-    echo "Starting iperf: $inputfile at $starttime"
-
+    echo "Starting iperf server: $inputfile at $starttime"
+    
     nohup iperf $(head -n 1 $inputfile) &> $logfile &
 
+    echo $! > $pidfile
+}
+
+start_iperf_client()
+{
+    local inputfile=$1
+    local logfile=$2
+    local pidfile=$3
+
+    echo "Starting iperf client: $inputfile at $starttime"
+    
+    # client
+    tar_ip=$(head -n 1 $inputfile)
+    params=$(head -n 2 $inputfile | tail -n 1)
+    while true; do
+        nc $tar_ip 5001 -w 1
+        if [ $? -eq 0 ]; then
+            break
+        fi
+    done
+
+    nohup iperf $params &> $logfile &
     echo $! > $pidfile
 }
 
@@ -520,7 +530,7 @@ then
         "$starttime"
 fi
 
-if [ -f iperf$nodeId ] &&
+if [ -f iperfc$nodeId ] &&
        [ ! -f NO-node-iperf$nodeId ] &&
        [ ! -f NO-node-iperf ]
 then
@@ -530,15 +540,15 @@ then
         wait_for_device emane0 10
     fi
 
-    start_iperf \
-        iperf$nodeId \
+    start_iperf_client \
+        iperfc$nodeId \
         $PWD/persist/$nodeId/var/log/iperf.log \
-        $PWD/persist/$nodeId/var/run/iperf.pid \
-        "$starttime"
+        $PWD/persist/$nodeId/var/run/iperf.pid
+fi 
 
-elif [ -f iperf ] &&
-         [ ! -f NO-node-iperf$nodeId ] &&
-         [ ! -f NO-node-iperf ]
+if [ -f iperfs$nodeId ] &&
+       [ ! -f NO-node-iperf$nodeId ] &&
+       [ ! -f NO-node-iperf ]
 then
 
     if [ -f $PWD/persist/$nodeId/var/run/transportdaemon.pid ]
@@ -546,11 +556,10 @@ then
         wait_for_device emane0 10
     fi
 
-    start_iperf \
-        iperf \
+    start_iperf_server \
+        iperfs$nodeId \
         $PWD/persist/$nodeId/var/log/iperf.log \
-        $PWD/persist/$nodeId/var/run/iperf.pid \
-        "$starttime"
+        $PWD/persist/$nodeId/var/run/iperf.pid
 fi
 
 if [ -x ./node-poststart ]
