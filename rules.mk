@@ -37,7 +37,7 @@ TEMPLATE_OTESTPOINTRECORDER ?= $(TOP_DIR)/templates/otestpoint-recorder.xml.temp
 all:  $(GENERATED_EXTRA) $(PLATFORMDEPS) $(GENERATED_EVENTDAEMONS) \
       $(GENERATED_GPSDLOCATIONAGENTS) $(GENERATED_MGENINPUTS) \
       $(GENERATED_ROUTINGCONFS) $(GENERATED_OTESTPOINTDS) \
-      $(GENERATED_OTESTPOINTRECORDERS) demo-start demo-stop 
+      $(GENERATED_OTESTPOINTRECORDERS) $(GENERATED_IPERF) demo-start demo-stop 
 	$(MAKE) all-local
 
 all-local:
@@ -77,6 +77,15 @@ $(PLATFORMDEPS): .%-dep:%
 	 cd .. && \
 	 rm -rf .emanegentransportxml
 	@touch $@
+
+iperfs%: 
+	echo "-s" > $@
+	chmod g-w,u-w $@
+
+iperfc%:
+	echo "`echo "1"`"
+	echo "10.100.0.`echo "$@" | cut -d'-' -f2`\n-c 10.100.0.`echo "$@" | cut -d'-' -f2` -w 30" > `echo "$@" | cut -d'-' -f1`
+	chmod g-w,u-w `echo "$@" | cut -d'-' -f1`
 
 eventdaemon%.xml: $(TEMPLATE_EVENTDAEMON)
 	if test -f $@; then chmod u+w $@; fi
