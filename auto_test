@@ -1,0 +1,37 @@
+#!/bin/bash
+set -ex 
+
+# 检查输入参数
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $0 <target_directory> <number>"
+    exit 1
+fi
+
+# 读取命令行参数
+TARGET_DIR=$1
+NUM=$2
+
+mkdir -p testdata
+
+for ((i = 2; i <= NUM; i=i+2)); do
+    ./generate_makefile.pl "$TARGET_DIR" $i
+
+    cd "$TARGET_DIR" && make
+
+    sudo ./demo-start
+
+    sleep 60
+
+    cd ..
+
+    ./collect_iperf.pl "$TARGET_DIR" testdata/"iperf_$i"
+
+    cd "$TARGET_DIR"
+    
+    sudo ./demo-stop
+
+    make clean
+
+    cd - > /dev/null
+done
+
