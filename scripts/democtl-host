@@ -31,6 +31,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+set -x
 prefix=node-
 bridge=emanenode0
 bridgecontrol=1
@@ -96,7 +97,7 @@ start_emane()
 
         echo "Starting emane: $xml"
 
-        emane "$xml" -r -d -l 3 -f "$logfile" \
+        emane "$xml" -r -d -l 4 -f "$logfile" \
               --pidfile "$pidfile" --uuidfile "$uuidfile"
 
         retval=$?
@@ -244,18 +245,6 @@ case "$1" in
         topdir=$1
         demoid=$2
         nodecount=$3
-
-        if [[ $demoid != +([0-9]) ]]
-        then
-            echo "Invalid demo id: $demoid" >&2
-            exit 1
-        fi
-
-        if [[ $nodecount != +([0-9]) ]]
-        then
-            echo "Invalid node count: nodecount" >&2
-            exit 1
-        fi
 
         if [ -z "$starttime" ]
         then
