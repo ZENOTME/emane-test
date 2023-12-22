@@ -2,36 +2,36 @@
 set -ex 
 
 # 检查输入参数
-if [ "$#" -ne 2 ]; then
-    echo "Usage: $0 <target_directory> <number>"
+if [ "$#" -ne 3 ]; then
+    echo "Usage: $0 <target_directory> <begin> <end>"
     exit 1
 fi
 
 # 读取命令行参数
 TARGET_DIR=$1
-NUM=$2
+B_NUM=$2
+E_NUM=$3
 
 mkdir -p testdata
 
-for ((i = 2; i <= NUM; i=i+2)); do
+for ((i = B_NUM; i <= E_NUM; i=i+10)); do
+    # start enviroment
     ./generate_makefile.pl "$TARGET_DIR" $i
-
-    cd "$TARGET_DIR" && make
-
+    cd "$TARGET_DIR" && make all
     sudo ./demo-start
 
-    sleep 60
-
-    cd ..
-
-    ./collect_iperf.pl "$TARGET_DIR" testdata/"iperf_$i"
-
-    cd "$TARGET_DIR"
+    # iperf and generate data 
+    cd - > /dev/null
+    #./generate_iperf_toml.pl $i > "$i.toml"
+    sudo ./iperf_test "2.toml" testdata/"iperf_$i"
+    #rm "$i.toml"
     
+    # clean enviroment
+    cd "$TARGET_DIR"
     sudo ./demo-stop
-
     make clean
-
+    
+    # return 
     cd - > /dev/null
 done
 

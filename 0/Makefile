@@ -4,9 +4,7 @@ DEMO_ID=0
 
 NEM_XML=bypassnem.xml
 
-GENERATED_PLATFORMS=             \
- platform1.xml                   \
- platform2.xml                   
+GENERATED_PLATFORMS=platform1.xml platform2.xml platform3.xml platform4.xml
 
 GENERATED_EVENTDAEMONS=          
 
